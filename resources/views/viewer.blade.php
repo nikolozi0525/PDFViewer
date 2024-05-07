@@ -8,6 +8,8 @@
     <script type="text/javascript" src="{{ 'js/viewer.js' }}"></script>
 </head>
 <body style="margin: 0px">
+    <label for="file-picker"> Choose a PDF file:</label>
+    <input type="file" id="file-picker" accept="application/pdf">
     <div id="adobe-dc-view"></div>
     <script type="text/javascript" src="https://acrobatservices.adobe.com/view-sdk/viewer.js"></script>
 </body>

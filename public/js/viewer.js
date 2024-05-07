@@ -12,45 +12,39 @@ written permission of Adobe.
 /* Control the default view mode */
 const viewerConfig = {
     /* Allowed possible values are "FIT_PAGE", "FIT_WIDTH", "TWO_COLUMN", "TWO_COLUMN_FIT_PAGE" or "". */
-    defaultViewMode: "FIT_WIDTH",
+    defaultViewMode: "SIZED_CONTAINER",
+    enableLinearization: true,
 };
 
 /* Wait for Adobe Acrobat Services PDF Embed API to be ready */
 document.addEventListener("adobe_dc_view_sdk.ready", function () {
-    /* Initialize the AdobeDC View object */
-    var adobeDCView = new AdobeDC.View({
-        /* Pass your registered client id */
-        clientId: "ef8f6d21909d4d0189accb2e78167985",
-        /* Pass the div id in which PDF should be rendered */
-        divId: "adobe-dc-view",
-    });
+    const fileToRead = document.getElementById("file-picker");
 
-    /* Invoke the file preview API on Adobe DC View object */
-    adobeDCView.previewFile(
-        {
-            /* Pass information on how to access the file */
-            content: {
-                /* Location of file where it is hosted */
-                location: {
-                    // url: "https://acrobatservices.adobe.com/view-sdk-demo/PDFs/Bodea Brochure.pdf",
-                    url: "1.pdf",
-                    /*
-                If the file URL requires some additional headers, then it can be passed as follows:-
-                headers: [
-                    {
-                        key: "<HEADER_KEY>",
-                        value: "<HEADER_VALUE>",
-                    }
-                ]
-                */
-                },
-            },
-            /* Pass meta data of file */
-            metaData: {
-                /* file name */
-                fileName: "Bodea Brochure.pdf",
-            },
+    fileToRead.addEventListener(
+        "change",
+        function (event) {
+            var files = fileToRead.files;
+            if (files.length > 0) {
+                var reader = new FileReader();
+                reader.onloadend = function (e) {
+                    const filePromise = Promise.resolve(e.target.result);
+                    /* Initialize the AdobeDC View object */
+                    const adobeDCView = new AdobeDC.View({
+                        /* Pass your registered client id */
+                        clientId: "ef8f6d21909d4d0189accb2e78167985",
+                        /* Pass the div id in which PDF should be rendered */
+                        divId: "adobe-dc-view",
+                    });
+
+                    // Pass the filePromise and name of the file to the previewFile API
+                    adobeDCView.previewFile({
+                        content: { promise: filePromise },
+                        metaData: { fileName: files[0].name },
+                    });
+                };
+                reader.readAsArrayBuffer(files[0]);
+            }
         },
-        viewerConfig
+        false
     );
 });
