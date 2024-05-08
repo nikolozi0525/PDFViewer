@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+    display: flex;
+    height: 100vh;
+}
+
+.pdf-view {
+    width: calc(100% - 200px);
+}
+
+.d-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-container {
+    border-left: 1px solid #333;
+    width: 200px;
+    font-family: Lato, sans-serif;
+    text-align: center;
+    background-color: #f5f5f5;
+}
+.custom-container input[type="button"] {
+    padding: 10px;
+}
