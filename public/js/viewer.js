@@ -17,7 +17,6 @@ const viewerConfig = {
     showDownloadPDF: false,
     showPrintPDF: false,
     showLeftHandPanel: true,
-    showBookmarks: true,
     // showDisabledSaveButton: true,
 
     // enableLinearization: true,
