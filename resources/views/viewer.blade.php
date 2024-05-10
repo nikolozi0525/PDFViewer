@@ -20,7 +20,7 @@
     <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
       <button type="button" class="btn btn-primary"
         onclick="document.getElementById('file-picker').click();">Browse...</button>
-      <button type="button" class="btn btn-primary my-1">Google search...</button>
+      <button type="button" class="btn btn-primary my-1" onclick="handleSearchWeb()">Google search...</button>
       <button type="button" class="btn btn-primary">Ask AI</button>
     </div>
   </div>

@@ -22,6 +22,9 @@ const viewerConfig = {
     // enableLinearization: true,
 };
 
+let previewFilePromise;
+let selectedText = "";
+
 /* Wait for Adobe Acrobat Services PDF Embed API to be ready */
 document.addEventListener("adobe_dc_view_sdk.ready", function () {
     const fileToRead = document.getElementById("file-picker");
@@ -45,7 +48,7 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                         const filePromise = Promise.resolve(e.target.result);
 
                         // Pass the filePromise and name of the file to the previewFile API
-                        adobeDCView.previewFile(
+                        previewFilePromise = adobeDCView.previewFile(
                             {
                                 content: { promise: filePromise },
                                 metaData: { fileName: files[0].name },
@@ -62,7 +65,7 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                         type: "POST",
                         data: formData,
                         success: function (data) {
-                            adobeDCView.previewFile(
+                            previewFilePromise = adobeDCView.previewFile(
                                 {
                                     content: {
                                         location: { url: "temp/temp.pdf" },
@@ -77,8 +80,37 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                         processData: false,
                     });
                 }
+
+                adobeDCView.registerCallback(
+                    AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
+                    function (event) {
+                        if (event.type === "PREVIEW_SELECTION_END") {
+                            previewFilePromise.then((adobeViewer) => {
+                                adobeViewer.getAPIs().then((apis) => {
+                                    apis.getSelectedContent().then((result) => {
+                                        const { type, data } = result;
+                                        if (type === "text") {
+                                            selectedText = data;
+                                        }
+                                    });
+                                });
+                            });
+                        }
+                    },
+                    { enableFilePreviewEvents: true }
+                );
             }
         },
         false
     );
 });
+
+const handleSearchWeb = () => {
+    const url = "https://www.google.com/search?q=" + selectedText;
+    // Open the URL in a new tab of the Chrome browser
+    window.open(url, "_blank");
+};
+
+const handleAskAI = () => {
+    console.log("Ask AI: ***");
+};

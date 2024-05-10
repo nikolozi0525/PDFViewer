@@ -2,6 +2,8 @@
 
 ## Installation
 
+-   create .env file from copying and renaming .env.example file
+
 ```
 npm install
 composer install
