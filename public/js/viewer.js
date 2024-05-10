@@ -112,5 +112,5 @@ const handleSearchWeb = () => {
 };
 
 const handleAskAI = () => {
-    console.log("Ask AI: ***");
+    alert("Ask AI will run in the future!!");
 };
