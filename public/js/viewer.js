@@ -18,12 +18,13 @@ const viewerConfig = {
     showPrintPDF: false,
     showLeftHandPanel: true,
     // showDisabledSaveButton: true,
+    enableAnnotationAPIs: true /* Default value is false */,
 
     // enableLinearization: true,
 };
 
-let previewFilePromise;
 let selectedText = "";
+let previewFilePromise;
 
 /* Wait for Adobe Acrobat Services PDF Embed API to be ready */
 document.addEventListener("adobe_dc_view_sdk.ready", function () {
@@ -35,14 +36,16 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
             /* Initialize the AdobeDC View object */
             const adobeDCView = new AdobeDC.View({
                 /* Pass your registered client id */
-                clientId: "ef8f6d21909d4d0189accb2e78167985",
+                clientId: "e3440e9a3b9a4f75a22e577afe799d36",
                 /* Pass the div id in which PDF should be rendered */
                 divId: "adobe-dc-view",
             });
 
             var files = fileToRead.files;
+
             if (files.length > 0) {
-                if (files[0].type === "application/pdf") {
+                const selectedFile = files[0];
+                if (selectedFile.type === "application/pdf") {
                     var reader = new FileReader();
                     reader.onloadend = function (e) {
                         const filePromise = Promise.resolve(e.target.result);
@@ -51,15 +54,22 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                         previewFilePromise = adobeDCView.previewFile(
                             {
                                 content: { promise: filePromise },
-                                metaData: { fileName: files[0].name },
+                                metaData: {
+                                    fileName: selectedFile.name,
+                                    id:
+                                        selectedFile.name.replace(/\s/g, "-") +
+                                        `+${selectedFile.size}+${selectedFile.type}`,
+                                    // id: "YYYY888",
+                                },
                             },
                             viewerConfig
                         );
+                        // );
                     };
-                    reader.readAsArrayBuffer(files[0]);
+                    reader.readAsArrayBuffer(selectedFile);
                 } else {
                     const formData = new FormData();
-                    formData.append("epub", files[0]);
+                    formData.append("epub", selectedFile);
                     $.ajax({
                         url: "http://localhost:4464/epub2pdf",
                         type: "POST",
@@ -70,7 +80,7 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                                     content: {
                                         location: { url: "temp/temp.pdf" },
                                     },
-                                    metaData: { fileName: files[0].name },
+                                    metaData: { fileName: selectedFile.name },
                                 },
                                 viewerConfig
                             );
@@ -80,37 +90,93 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                         processData: false,
                     });
                 }
+            }
 
-                adobeDCView.registerCallback(
-                    AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
-                    function (event) {
-                        if (event.type === "PREVIEW_SELECTION_END") {
-                            previewFilePromise.then((adobeViewer) => {
-                                adobeViewer.getAPIs().then((apis) => {
-                                    apis.getSelectedContent().then((result) => {
-                                        const { type, data } = result;
-                                        if (type === "text") {
-                                            selectedText = data;
-                                        }
-                                    });
+            adobeDCView.registerCallback(
+                AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
+                function (event) {
+                    if (event.type === "PREVIEW_SELECTION_END") {
+                        previewFilePromise.then((adobeViewer) => {
+                            adobeViewer.getAPIs().then((apis) => {
+                                apis.getSelectedContent().then((result) => {
+                                    const { type, data } = result;
+                                    if (type === "text") {
+                                        selectedText = data;
+                                    }
                                 });
                             });
-                        }
-                    },
-                    { enableFilePreviewEvents: true }
-                );
-            }
+                        });
+                    }
+                    if (event.type === "PDF_VIEWER_READY") {
+                        previewFilePromise.then((adobeViewer) => {
+                            adobeViewer
+                                .getAnnotationManager()
+                                .then(function (annotationManager) {
+                                    /* API to add annotations */
+                                    annotationManager
+                                        .addAnnotations(
+                                            JSON.parse(
+                                                localStorage.getItem("data")
+                                            )
+                                        )
+                                        .then(function () {
+                                            console.log(
+                                                "Annotations added through API successfully"
+                                            );
+                                        })
+                                        .catch(function (error) {
+                                            console.log(error);
+                                        });
+
+                                    /* API to get all annotations */
+                                    annotationManager
+                                        .getAnnotations()
+                                        .then(function (result) {
+                                            console.log(
+                                                "GET all annotations",
+                                                result
+                                            );
+                                        })
+                                        .catch(function (error) {
+                                            console.log(error);
+                                        });
+                                });
+                        });
+                    }
+                },
+                { enableFilePreviewEvents: true }
+            );
         },
         false
     );
 });
 
 const handleSearchWeb = () => {
-    const url = "https://www.google.com/search?q=" + selectedText;
-    // Open the URL in a new tab of the Chrome browser
-    window.open(url, "_blank");
+    if (selectedText) {
+        const url = "https://www.google.com/search?q=" + selectedText;
+        // Open the URL in a new tab of the Chrome browser
+        window.open(url, "_blank");
+    } else {
+        alert("You have to select the text for the Google Search.");
+    }
 };
 
 const handleAskAI = () => {
     alert("Ask AI will run in the future!!");
+};
+
+const storeAnnotationData = () => {
+    previewFilePromise.then((adobeViewer) => {
+        adobeViewer.getAnnotationManager().then(function (annotationManager) {
+            annotationManager
+                .getAnnotations()
+                .then(function (result) {
+                    console.log("GET all annotations", result);
+                    localStorage.setItem("data", JSON.stringify(result));
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        });
+    });
 };

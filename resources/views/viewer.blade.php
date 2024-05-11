@@ -22,6 +22,7 @@
         onclick="document.getElementById('file-picker').click();">Browse...</button>
       <button type="button" class="btn btn-primary my-1" onclick="handleSearchWeb()">Google search...</button>
       <button type="button" class="btn btn-primary" onclick="handleAskAI()">Ask AI</button>
+      <button type="button" class="btn btn-primary my-1" onclick="storeAnnotationData()">Export</button>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
