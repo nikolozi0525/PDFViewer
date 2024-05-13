@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -74,29 +74,22 @@ class BookController extends Controller
      */
     public function show(string $id): View
     {
-        $book = Book::find($id);
-        return view("bookshow.show", compact("book"));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id): View
+    public function edit(Book $book): View
     {
-        $book = Book::find($id);
-        return view("bookshow.edit", compact("book"));
+        return view("books.edit", compact("book"));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id) : RedirectResponse
+    public function update(Request $request, Book $book) : RedirectResponse
     {
-        $this->validate($request,[
-            'name' => 'required|unique',
-            'description' => 'string',
-            'file' => 'required',
-        ]);
+
         $input = $request->all();
 
         if ($bookFile = $request->file('file')) {
@@ -109,7 +102,6 @@ class BookController extends Controller
             $input['bookId'] = Str::random(40);
         }
   
-        $book = Book::find($id);
         $book->update($input);
    
         return redirect()->route('books.index')
@@ -123,6 +115,7 @@ class BookController extends Controller
     {
         //
         $book = Book::find($id);
+        Storage::disk('public')->delete('storage' . $book->filepath);
         $book->delete();
         return redirect()->route("books.index");
     }
