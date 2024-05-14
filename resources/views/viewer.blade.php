@@ -24,6 +24,11 @@
             <button type="button" class="btn btn-primary my-1" onclick="storeAnnotationData()">Export</button>
         </div>
     </div>
+
+    <script>
+        var userData = {!! json_encode($user) !!}
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
     </script>
@@ -36,6 +41,8 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://acrobatservices.adobe.com/view-sdk/viewer.js"></script>
     <script type="text/javascript" src="{{ 'js/viewer.js' }}"></script>
+
+
 
 </body>
 

@@ -96,22 +96,18 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                 }
             }
 
-            const profile = {
-                userProfile: {
-                    name: "John Doe",
-                    firstName: "John",
-                    lastName: "Doe",
-                    email: "gg@gg.com",
-                },
-            };
-
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.GET_USER_PROFILE_API,
                 (event) => {
                     return new Promise((resolve, reject) => {
                         resolve({
                             code: AdobeDC.View.Enum.ApiResponseCode.SUCCESS,
-                            data: profile,
+                            data: {
+                                userProfile: {
+                                    ...userData,
+                                    name: `${userData.firstName} ${userData.lastName}`,
+                                },
+                            },
                         });
                     });
                 }
