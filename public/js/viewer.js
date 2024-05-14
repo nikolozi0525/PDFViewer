@@ -36,7 +36,7 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
     fileToRead.addEventListener(
         "change",
         function (event) {
-            storeAnnotationData();
+            previewFilePromise && storeAnnotationData();
             /* Initialize the AdobeDC View object */
             const adobeDCView = new AdobeDC.View({
                 /* Pass your registered client id */
@@ -95,6 +95,27 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                     });
                 }
             }
+
+            const profile = {
+                userProfile: {
+                    name: "John Doe",
+                    firstName: "John",
+                    lastName: "Doe",
+                    email: "gg@gg.com",
+                },
+            };
+
+            adobeDCView.registerCallback(
+                AdobeDC.View.Enum.CallbackType.GET_USER_PROFILE_API,
+                (event) => {
+                    return new Promise((resolve, reject) => {
+                        resolve({
+                            code: AdobeDC.View.Enum.ApiResponseCode.SUCCESS,
+                            data: profile,
+                        });
+                    });
+                }
+            );
 
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
