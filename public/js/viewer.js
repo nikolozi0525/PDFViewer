@@ -9,6 +9,9 @@ then your use, modification, or distribution of it requires the prior
 written permission of Adobe.
 */
 
+// Get the PDF viewer element
+const viewerElement = document.getElementById("adobe-dc-view");
+
 /* Control the default view mode */
 const viewerConfig = {
     /* Allowed possible values are "FIT_PAGE", "FIT_WIDTH", "TWO_COLUMN", "TWO_COLUMN_FIT_PAGE" or "". */
@@ -33,6 +36,7 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
     fileToRead.addEventListener(
         "change",
         function (event) {
+            storeAnnotationData();
             /* Initialize the AdobeDC View object */
             const adobeDCView = new AdobeDC.View({
                 /* Pass your registered client id */
@@ -180,3 +184,12 @@ const storeAnnotationData = () => {
         });
     });
 };
+
+$(window).bind("beforeunload", function (e) {
+    e.preventDefault();
+    storeAnnotationData();
+
+    setTimeout(() => {
+        return true;
+    }, 1000);
+});
