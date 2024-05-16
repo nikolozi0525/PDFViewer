@@ -91,7 +91,8 @@ document.addEventListener("adobe_dc_view_sdk.ready", function () {
                             /* API to add annotations */
                             annotationManager
                                 .addAnnotations(
-                                    JSON.parse(localStorage.getItem("data"))
+                                    JSON.parse(bookInfo.annotations)
+                                    // JSON.parse(localStorage.getItem("data"))
                                 )
                                 .then(function () {
                                     console.log(
@@ -140,7 +141,18 @@ const storeAnnotationData = () => {
                 .getAnnotations()
                 .then(function (result) {
                     console.log("GET all annotations", result);
-                    localStorage.setItem("data", JSON.stringify(result));
+                    // localStorage.setItem("data", JSON.stringify(result));
+                    $.ajax({
+                        url: `${location.origin}/api/annotations`,
+                        type: "POST",
+                        data: {
+                            id: bookInfo.id,
+                            annotations: JSON.stringify(result),
+                        },
+                        success: (res) => {
+                            console.log("******  ", res);
+                        },
+                    });
                 })
                 .catch(function (error) {
                     console.log(error);

@@ -48,7 +48,7 @@ class BookController extends Controller
             'description' => 'string',
             'file' => 'required',
         ]);
-        $input = $request->all();
+        $input = $request->all();   
 
 
         if ($bookFile = $request->file('file')) {
