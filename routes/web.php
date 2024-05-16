@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\ViewerController;
 
 
 /*
@@ -15,8 +16,7 @@ use App\Http\Controllers\BookController;
 |
 */
 
-Route::get('/', function () {
-    return view('viewer');
-});
+Route::get('/', [ViewerController::class, 'booklist']);
+Route::get('/viewer/{id}', [ViewerController::class, 'view']);
 
 Route::resource('/books', BookController::class);
