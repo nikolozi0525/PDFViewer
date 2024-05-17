@@ -10,6 +10,13 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <style>
+        print {
+			.noprint {
+				display: none !important;
+			}
+		}
+    </style>
 </head>
 
 <body style="margin: 0px">
@@ -41,9 +48,10 @@
     <script type="text/javascript" src="https://acrobatservices.adobe.com/view-sdk/viewer.js"></script>
     {{-- <script type="text/javascript" src="{{ asset('js/viewer.js') }}"></script> --}}
     <script>
+        
         // Get the PDF viewer element
         const viewerElement = document.getElementById("adobe-dc-view");
-
+        
         /* Control the default view mode */
         const viewerConfig = {
             /* Allowed possible values are "FIT_PAGE", "FIT_WIDTH", "TWO_COLUMN", "TWO_COLUMN_FIT_PAGE" or "". */
@@ -54,13 +62,14 @@
             showLeftHandPanel: true,
             // showDisabledSaveButton: true,
             enableAnnotationAPIs: true /* Default value is false */ ,
-
+            showAnnotationTools: true,
             // enableLinearization: true,
         };
 
+        
+
         let selectedText = "";
         let previewFilePromise;
-
         /* Wait for Adobe Acrobat Services PDF Embed API to be ready */
         document.addEventListener("adobe_dc_view_sdk.ready", function() {
             const adobeDCView = new AdobeDC.View({
@@ -69,7 +78,6 @@
                 /* Pass the div id in which PDF should be rendered */
                 divId: "adobe-dc-view",
             });
-
             previewFilePromise = adobeDCView.previewFile({
                     content: {
                         location: {
@@ -83,7 +91,7 @@
                 },
                 viewerConfig
             );
-
+            
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.GET_USER_PROFILE_API,
                 (event) => {
@@ -104,6 +112,9 @@
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
                 function(event) {
+                    if(event.type === "DOCUMENT_PRINT"){
+                        location.reload();
+                    }
                     if (event.type === "PREVIEW_SELECTION_END") {
                         previewFilePromise.then((adobeViewer) => {
                             adobeViewer.getAPIs().then((apis) => {
@@ -114,10 +125,13 @@
                                     } = result;
                                     if (type === "text") {
                                         selectedText = data;
+                                        console.log("selectedText", selectedText)
                                     }
                                 });
+                                
                             });
-                        });
+                        },{
+                });
                     }
                     if (event.type === "PDF_VIEWER_READY") {
                         previewFilePromise.then((adobeViewer) => {
@@ -152,11 +166,11 @@
                         });
                     }
                 }, {
-                    enableFilePreviewEvents: true
+                    enableFilePreviewEvents: true,
+                    enablePDFAnalytics: true
                 }
             );
         });
-
         const handleSearchWeb = () => {
             if (selectedText) {
                 const url = "https://www.google.com/search?q=" + selectedText;

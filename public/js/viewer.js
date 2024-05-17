@@ -22,7 +22,6 @@ const viewerConfig = {
     showLeftHandPanel: true,
     // showDisabledSaveButton: true,
     enableAnnotationAPIs: true /* Default value is false */,
-
     // enableLinearization: true,
 };
 
