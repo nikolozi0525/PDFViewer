@@ -12,10 +12,10 @@
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
         print {
-			.noprint {
-				display: none !important;
-			}
-		}
+            .noprint {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -26,7 +26,7 @@
             <a href="/" type="button" class="btn btn-primary">BookList page</a>
             <button type="button" class="btn btn-primary my-1" onclick="handleSearchWeb()">Google search...</button>
             <button type="button" class="btn btn-primary" onclick="handleAskAI()">Ask AI</button>
-            <button type="button" class="btn btn-primary my-1" onclick="storeAnnotationData()">Export</button>
+            <button type="button" class="btn btn-primary my-1" onclick="storeAnnotationData()">Save changes</button>
         </div>
     </div>
 
@@ -48,10 +48,9 @@
     <script type="text/javascript" src="https://acrobatservices.adobe.com/view-sdk/viewer.js"></script>
     {{-- <script type="text/javascript" src="{{ asset('js/viewer.js') }}"></script> --}}
     <script>
-        
         // Get the PDF viewer element
         const viewerElement = document.getElementById("adobe-dc-view");
-        
+
         /* Control the default view mode */
         const viewerConfig = {
             /* Allowed possible values are "FIT_PAGE", "FIT_WIDTH", "TWO_COLUMN", "TWO_COLUMN_FIT_PAGE" or "". */
@@ -60,13 +59,10 @@
             showDownloadPDF: false,
             showPrintPDF: false,
             showLeftHandPanel: true,
-            // showDisabledSaveButton: true,
             enableAnnotationAPIs: true /* Default value is false */ ,
             showAnnotationTools: true,
             // enableLinearization: true,
         };
-
-        
 
         let selectedText = "";
         let previewFilePromise;
@@ -91,7 +87,7 @@
                 },
                 viewerConfig
             );
-            
+
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.GET_USER_PROFILE_API,
                 (event) => {
@@ -109,10 +105,11 @@
                 }
             );
 
+
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
                 function(event) {
-                    if(event.type === "DOCUMENT_PRINT"){
+                    if (event.type === "DOCUMENT_PRINT") {
                         location.reload();
                     }
                     if (event.type === "PREVIEW_SELECTION_END") {
@@ -128,40 +125,60 @@
                                         console.log("selectedText", selectedText)
                                     }
                                 });
-                                
+
                             });
-                        },{
-                });
+                        }, {});
+                    }
+                    if (event.type === 'PDF_VIEWER_OPEN') {
+                        window.addEventListener('beforeunload', e => {
+                            e.preventDefault();
+                            storeAnnotationData();
+                            event.returnValue = true;
+                        })
+                        $(window).bind("beforeunload", function(e) {
+                            storeAnnotationData();
+                            setTimeout(() => {
+                                return true;
+                            }, 1000);
+                        }, false);
                     }
                     if (event.type === "PDF_VIEWER_READY") {
+
+
                         previewFilePromise.then((adobeViewer) => {
                             adobeViewer
                                 .getAnnotationManager()
                                 .then(function(annotationManager) {
                                     /* API to add annotations */
-                                    annotationManager
-                                        .addAnnotations(
-                                            JSON.parse(bookInfo.annotations)
-                                            // JSON.parse(localStorage.getItem("data"))
-                                        )
-                                        .then(function() {
-                                            console.log(
-                                                "Annotations added through API successfully"
-                                            );
-                                        })
-                                        .catch(function(error) {
-                                            console.log(error);
-                                        });
+                                    const tempData = JSON.parse(localStorage
+                                        .getItem('data'))
+                                    if (tempData.length) {
+                                        annotationManager
+                                            .addAnnotations(
+                                                tempData
+                                            ).then(function() {
+                                                console.log(
+                                                    "Annotations added through API successfully"
+                                                );
 
-                                    /* API to get all annotations */
-                                    annotationManager
-                                        .getAnnotations()
-                                        .then(function(result) {
-                                            console.log("GET all annotations", result);
-                                        })
-                                        .catch(function(error) {
-                                            console.log(error);
-                                        });
+                                            })
+                                    }
+                                    const annotations = JSON.parse(bookInfo.annotations)
+
+                                    if (annotations.length && tempData.length == 0) {
+                                        annotationManager
+                                            .addAnnotations(
+                                                annotations
+                                            )
+                                            .then(function() {
+                                                console.log(
+                                                    "Annotations added through API successfully from db"
+                                                );
+                                            })
+                                            .catch(function(error) {
+                                                console.log(error);
+                                            });
+                                    }
                                 });
                         });
                     }
@@ -191,8 +208,7 @@
                     annotationManager
                         .getAnnotations()
                         .then(function(result) {
-                            console.log("GET all annotations", result);
-                            // localStorage.setItem("data", JSON.stringify(result));
+                            localStorage.setItem("data", JSON.stringify(result));
                             $.ajax({
                                 url: `${location.origin}/api/annotations`,
                                 type: "POST",
@@ -201,7 +217,7 @@
                                     annotations: JSON.stringify(result),
                                 },
                                 success: (res) => {
-                                    console.log("******  ", res);
+                                    console.log("Save");
                                 },
                             });
                         })
@@ -211,15 +227,6 @@
                 });
             });
         };
-
-        $(window).bind("beforeunload", function(e) {
-            e.preventDefault();
-            storeAnnotationData();
-
-            setTimeout(() => {
-                return true;
-            }, 1000);
-        });
     </script>
 
 
