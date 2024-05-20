@@ -41,9 +41,9 @@
 
         <div class="form-group">
             <label for="file">File</label>
-            <input id="file" name="file" type="file" class="form-control" accept=".pdf,.epub"
+            <input id="file" name="file" type="file" class="form-control" accept=".pdf"
                 placeholder="Enter Book Sale Price">
-            <span>Accepted formats are : PDF, ePub</span>
+            <span>Accepted formats are : PDF</span>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>

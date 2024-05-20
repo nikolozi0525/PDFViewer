@@ -11,7 +11,7 @@
         <thead>
             <tr>
                 <th>Title</th>
-                <th>extensions</th>
+                <th>Author</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -22,7 +22,7 @@
                 <tr>
                     <td width="50%"><a href="{{ url('storage/' . $book->filepath) }}" target="_blank"> {{ $book->name }}
                         </a></td>
-                    <td>{{ $book->extension }}</td>
+                    <td>{{ $book->author }}</td>
                     <td class="d-flex justify-content-center">
                         <a href="{{ route('books.edit', $book->id) }}" class="btn btn-success me-1">Edit</a>
                         @include('partials.delete_button')
