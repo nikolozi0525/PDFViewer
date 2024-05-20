@@ -32,11 +32,11 @@
 <body>
     <div class="custom-container d-center ">
         <div class="btn-group-vertical bg-white p-1" role="group" aria-label="Vertical button group">
-            <a href="/" type="button" class="btn btn-custom-size btn-sm btn-primary btn-booklist"><i class="bi bi-book"></i></a>
-            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="handleSearchWeb()"><i class="bi bi-globe"></i>
+            <a href="/" type="button" class="btn btn-custom-size btn-sm btn-primary btn-booklist" data-toogle="tooltip1" title="Lists of Books"><i class="bi bi-book"></i></a>
+            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="handleSearchWeb()" data-toogle="tooltip2" title="Search in the Web"><i class="bi bi-globe"></i>
 </button>
-            <button type="button" class="btn btn-custom-size btn-sm btn-primary" onclick="handleAskAI()"><i class="bi bi-lightning"></i></button>
-            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="storeAnnotationData()"><i class="bi bi-file-arrow-up"></i></button>
+            <button type="button" class="btn btn-custom-size btn-sm btn-primary" onclick="handleAskAI()" data-toogle="tooltip3" title="Ask AI"><i class="bi bi-lightning"></i></button>
+            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="storeAnnotationData()" data-toogle="tooltip4" title="Export"><i class="bi bi-file-arrow-up"></i></button>
         </div>
     </div>
     <div id="adobe-dc-view" class="pdf-view"></div>
@@ -234,6 +234,12 @@
 
         window.addEventListener()
 
+        $(function (){
+            $('[data-toogle="tooltip1"]').tooltip();
+            $('[data-toogle="tooltip2"]').tooltip();
+            $('[data-toogle="tooltip3"]').tooltip();
+            $('[data-toogle="tooltip4"]').tooltip();
+        })
     </script>
 
 
