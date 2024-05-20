@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
@@ -23,8 +24,12 @@
         } */
         .btn-group-vertical{
             position: relative;
-            left: 17px;
             top: 40%;
+            left: 14px;
+            width: 40px;
+        }
+        .btn-custom:hover{
+            background-color: gainsboro;
         }
     </style>
 </head>
@@ -32,11 +37,10 @@
 <body>
     <div class="custom-container d-center ">
         <div class="btn-group-vertical bg-white p-1" role="group" aria-label="Vertical button group">
-            <a href="/" type="button" class="btn btn-custom-size btn-sm btn-primary btn-booklist" data-toogle="tooltip1" title="Lists of Books"><i class="bi bi-book"></i></a>
-            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="handleSearchWeb()" data-toogle="tooltip2" title="Search in the Web"><i class="bi bi-globe"></i>
-</button>
-            <button type="button" class="btn btn-custom-size btn-sm btn-primary" onclick="handleAskAI()" data-toogle="tooltip3" title="Ask AI"><i class="bi bi-lightning"></i></button>
-            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="storeAnnotationData()" data-toogle="tooltip4" title="Export"><i class="bi bi-file-arrow-up"></i></button>
+            <a href="/" type="button" class="btn btn-custom btn-lg btn-booklist" data-toogle="tooltip1" title="Lists of Books"><i class="fas fa-book d-flex justify-content-center"></i></a>
+            <button type="button" class="btn btn-custom btn-lg my-1" onclick="handleSearchWeb()" data-toogle="tooltip2" title="Search in the Web"><i class="fas fa-globe d-flex justify-content-center"></i></button>
+            <button type="button" class="btn btn-custom btn-lg" onclick="handleAskAI()" data-toogle="tooltip3" title="Ask AI"><i class="fas fa-comment-dots d-flex justify-content-center"></i></button>
+            <button type="button" class="btn btn-custom btn-lg my-1" onclick="storeAnnotationData()" data-toogle="tooltip4" title="Export"><i class="fas fa-file-export d-flex justify-content-center"></i></button>
         </div>
     </div>
     <div id="adobe-dc-view" class="pdf-view"></div>
