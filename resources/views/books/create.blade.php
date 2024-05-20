@@ -19,6 +19,16 @@
             @endif
         </div>
         <div class="form-group">
+            <label for="author">Author</label>
+            <input id="author" name="author" value="{{ old('author') }}" type="text" class="form-control"
+                placeholder="Enter Author name">
+            @if ($errors->first('author'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('author') }}</strong>
+                </span>
+            @endif
+        </div>
+        <div class="form-group">
             <label for="description">Book Description</label>
             <textarea class="form-control" name="description" id="description" value=" {{ old('description') }}"
                 placeholder="Enter description"></textarea>
