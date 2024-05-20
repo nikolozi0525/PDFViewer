@@ -8,6 +8,7 @@
     <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
 
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
@@ -16,19 +17,29 @@
 				display: none !important;
 			}
 		}
+        /* .btn-booklist{
+            position: relative;
+            left: ;
+        } */
+        .btn-group-vertical{
+            position: relative;
+            left: 17px;
+            top: 40%;
+        }
     </style>
 </head>
 
-<body style="margin: 0px">
-    <div id="adobe-dc-view" class="pdf-view"></div>
+<body>
     <div class="custom-container d-center ">
-        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-            <a href="/" type="button" class="btn btn-primary">BookList page</a>
-            <button type="button" class="btn btn-primary my-1" onclick="handleSearchWeb()">Google search...</button>
-            <button type="button" class="btn btn-primary" onclick="handleAskAI()">Ask AI</button>
-            <button type="button" class="btn btn-primary my-1" onclick="storeAnnotationData()">Export</button>
+        <div class="btn-group-vertical bg-white p-1" role="group" aria-label="Vertical button group">
+            <a href="/" type="button" class="btn btn-custom-size btn-sm btn-primary btn-booklist"><i class="bi bi-book"></i></a>
+            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="handleSearchWeb()"><i class="bi bi-globe"></i>
+</button>
+            <button type="button" class="btn btn-custom-size btn-sm btn-primary" onclick="handleAskAI()"><i class="bi bi-lightning"></i></button>
+            <button type="button" class="btn btn-custom-size btn-sm btn-primary my-1" onclick="storeAnnotationData()"><i class="bi bi-file-arrow-up"></i></button>
         </div>
     </div>
+    <div id="adobe-dc-view" class="pdf-view"></div>
 
     <script>
         var userData = {!! json_encode($user) !!}
@@ -220,6 +231,9 @@
                 return true;
             }, 1000);
         });
+
+        window.addEventListener()
+
     </script>
 
 
