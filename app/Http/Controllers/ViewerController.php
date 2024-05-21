@@ -25,8 +25,14 @@ class ViewerController extends Controller
         ];
         $book = Book::find($id);
         $book->file = url('storage/' . $book->filepath);
-        $annotations = Annotation::select('annotations')->where('bookId', $id)->get();
-        
+        $annotations = Annotation::where('bookId', $id)->where('userId', $user['userId'])->first();
+        if ($annotations) {
+            # code...
+            $annotations = $annotations->annotations;
+        } else {
+            $annotations = '[]';
+        }
+        // dd($annotations);
         return view('viewer.viewer', compact('user','book','annotations'));
     }
 }
