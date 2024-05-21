@@ -5,6 +5,7 @@
     <title>Pdf custom viewer</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="alternate" media="print" href="alternativeUrlForPrint.ext" />
     <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -13,7 +14,7 @@
 
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
-        print {
+        @media print {
             .noprint {
                 display: none !important;
             }
@@ -33,6 +34,9 @@
         .btn-custom:hover {
             background-color: gainsboro;
         }
+    </style>
+    <style type="text/css" media="print">
+        body { visibility: hidden; display: none }
     </style>
 </head>
 
@@ -132,8 +136,10 @@
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
                 function(event) {
+                    console.log("event", event.type)
                     if (event.type === "DOCUMENT_PRINT") {
-                        location.reload();
+                        $(window).off('beforeunload')
+                        location.reload()
                     }
                     if (event.type === "PREVIEW_SELECTION_END") {
                         previewFilePromise.then((adobeViewer) => {
@@ -238,7 +244,6 @@
                 });
             });
         };
-
         $(window).bind("beforeunload", function(e) {
             e.preventDefault();
             storeAnnotationData();
@@ -247,13 +252,13 @@
                 return true;
             }, 1000);
         });
-
         $(function() {
             $('[data-toogle="tooltip1"]').tooltip();
             $('[data-toogle="tooltip2"]').tooltip();
             $('[data-toogle="tooltip3"]').tooltip();
             $('[data-toogle="tooltip4"]').tooltip();
         })
+
     </script>
 
 
