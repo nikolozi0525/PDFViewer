@@ -14,21 +14,23 @@
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
         print {
-			.noprint {
-				display: none !important;
-			}
-		}
+            .noprint {
+                display: none !important;
+            }
+        }
+
         /* .btn-booklist{
             position: relative;
             left: ;
         } */
-        .btn-group-vertical{
+        .btn-group-vertical {
             position: relative;
             top: 40%;
             left: 14px;
             width: 40px;
         }
-        .btn-custom:hover{
+
+        .btn-custom:hover {
             background-color: gainsboro;
         }
     </style>
@@ -37,10 +39,15 @@
 <body>
     <div class="custom-container d-center ">
         <div class="btn-group-vertical bg-white p-1" role="group" aria-label="Vertical button group">
-            <a href="/" type="button" class="btn btn-custom btn-lg btn-booklist" data-toogle="tooltip1" title="Lists of Books"><i class="fas fa-book d-flex justify-content-center"></i></a>
-            <button type="button" class="btn btn-custom btn-lg my-1" onclick="handleSearchWeb()" data-toogle="tooltip2" title="Search in the Web"><i class="fas fa-globe d-flex justify-content-center"></i></button>
-            <button type="button" class="btn btn-custom btn-lg" onclick="handleAskAI()" data-toogle="tooltip3" title="Ask AI"><i class="fas fa-comment-dots d-flex justify-content-center"></i></button>
-            <button type="button" class="btn btn-custom btn-lg my-1" onclick="storeAnnotationData()" data-toogle="tooltip4" title="Export"><i class="fas fa-file-export d-flex justify-content-center"></i></button>
+            <a href="/" type="button" class="btn btn-custom btn-lg btn-booklist" data-toogle="tooltip1"
+                title="Lists of Books"><i class="fas fa-book d-flex justify-content-center"></i></a>
+            <button type="button" class="btn btn-custom btn-lg my-1" onclick="handleSearchWeb()" data-toogle="tooltip2"
+                title="Search in the Web"><i class="fas fa-globe d-flex justify-content-center"></i></button>
+            <button type="button" class="btn btn-custom btn-lg" onclick="handleAskAI()" data-toogle="tooltip3"
+                title="Ask AI"><i class="fas fa-comment-dots d-flex justify-content-center"></i></button>
+            <button type="button" class="btn btn-custom btn-lg my-1" onclick="storeAnnotationData()"
+                data-toogle="tooltip4" title="Export"><i
+                    class="fas fa-file-export d-flex justify-content-center"></i></button>
         </div>
     </div>
     <div id="adobe-dc-view" class="pdf-view"></div>
@@ -48,6 +55,7 @@
     <script>
         var userData = {!! json_encode($user) !!}
         var bookInfo = {!! json_encode($book) !!}
+        var annotationInfo = {!! json_encode($annotations) !!}
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
@@ -63,10 +71,9 @@
     <script type="text/javascript" src="https://acrobatservices.adobe.com/view-sdk/viewer.js"></script>
     {{-- <script type="text/javascript" src="{{ asset('js/viewer.js') }}"></script> --}}
     <script>
-        
         // Get the PDF viewer element
         const viewerElement = document.getElementById("adobe-dc-view");
-        
+
         /* Control the default view mode */
         const viewerConfig = {
             /* Allowed possible values are "FIT_PAGE", "FIT_WIDTH", "TWO_COLUMN", "TWO_COLUMN_FIT_PAGE" or "". */
@@ -80,8 +87,6 @@
             showAnnotationTools: true,
             // enableLinearization: true,
         };
-
-        
 
         let selectedText = "";
         let previewFilePromise;
@@ -101,12 +106,12 @@
                     },
                     metaData: {
                         fileName: bookInfo.name,
-                        id: bookInfo.bookId,
+                        id: `${bookInfo.id}`,
                     },
                 },
                 viewerConfig
             );
-            
+
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.GET_USER_PROFILE_API,
                 (event) => {
@@ -115,8 +120,8 @@
                             code: AdobeDC.View.Enum.ApiResponseCode.SUCCESS,
                             data: {
                                 userProfile: {
-                                    ...userData,
-                                    name: `${userData.firstName} ${userData.lastName}`,
+                                    id: `${userData.userId}`,
+                                    name: userData.username,
                                 },
                             },
                         });
@@ -127,7 +132,7 @@
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
                 function(event) {
-                    if(event.type === "DOCUMENT_PRINT"){
+                    if (event.type === "DOCUMENT_PRINT") {
                         location.reload();
                     }
                     if (event.type === "PREVIEW_SELECTION_END") {
@@ -143,10 +148,8 @@
                                         console.log("selectedText", selectedText)
                                     }
                                 });
-                                
                             });
-                        },{
-                });
+                        }, {});
                     }
                     if (event.type === "PDF_VIEWER_READY") {
                         previewFilePromise.then((adobeViewer) => {
@@ -156,7 +159,8 @@
                                     /* API to add annotations */
                                     annotationManager
                                         .addAnnotations(
-                                            JSON.parse(bookInfo.annotations)
+                                            annotationInfo.map(one => JSON.parse(one
+                                                .annotations)).flat()
                                             // JSON.parse(localStorage.getItem("data"))
                                         )
                                         .then(function() {
@@ -172,13 +176,17 @@
                                     annotationManager
                                         .getAnnotations()
                                         .then(function(result) {
-                                            console.log("GET all annotations", result);
+                                            console.log("GET all annotations-----", result);
                                         })
                                         .catch(function(error) {
                                             console.log(error);
                                         });
                                 });
                         });
+
+                        setInterval(() => {
+                            storeAnnotationData()
+                        }, 10000);
                     }
                 }, {
                     enableFilePreviewEvents: true,
@@ -207,13 +215,17 @@
                         .getAnnotations()
                         .then(function(result) {
                             console.log("GET all annotations", result);
-                            // localStorage.setItem("data", JSON.stringify(result));
+                            const filterResult = result.filter(one => one.creator.id == userData
+                                .userId)
+                            localStorage.setItem("data", JSON.stringify(filterResult));
                             $.ajax({
                                 url: `${location.origin}/api/annotations`,
                                 type: "POST",
                                 data: {
-                                    id: bookInfo.id,
-                                    annotations: JSON.stringify(result),
+                                    bookId: bookInfo.id,
+                                    userId: userData.userId,
+                                    username: userData.username,
+                                    annotations: JSON.stringify(filterResult),
                                 },
                                 success: (res) => {
                                     console.log("******  ", res);
@@ -236,9 +248,7 @@
             }, 1000);
         });
 
-        window.addEventListener()
-
-        $(function (){
+        $(function() {
             $('[data-toogle="tooltip1"]').tooltip();
             $('[data-toogle="tooltip2"]').tooltip();
             $('[data-toogle="tooltip3"]').tooltip();
