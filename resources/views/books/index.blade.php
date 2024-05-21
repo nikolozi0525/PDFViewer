@@ -6,8 +6,8 @@
 
 @section('content')
     <h1 class="text-center"> <strong>All Books in Store</strong> </h1>
-    <a href="{{ route('books.create') }}" class="btn btn-warning float-right">Add New Book</a>
-    <table class="table table-dark text-center mt-5">
+    <a href="{{ route('books.create') }}" class="btn btn-outline-primary float-right"><i class="fas fa-plus"></i>Add New Book</a>
+    <table class="table table-bordered text-center table-hover mt-5">
         <thead>
             <tr>
                 <th>Title</th>
@@ -24,7 +24,7 @@
                         </a></td>
                     <td>{{ $book->author }}</td>
                     <td class="d-flex justify-content-center">
-                        <a href="{{ route('books.edit', $book->id) }}" class="btn btn-success me-1">Edit</a>
+                        <a href="{{ route('books.edit', $book->id) }}" class="btn btn-outline-primary me-1"> <i class="fas fa-edit"></i></a>
                         @include('partials.delete_button')
                     </td>
                 </tr>
