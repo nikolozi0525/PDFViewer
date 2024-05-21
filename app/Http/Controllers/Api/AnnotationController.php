@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Book;
+use App\Models\Annotation;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -13,11 +13,13 @@ class AnnotationController extends Controller
     //
     public function store(Request $request) {
         $data = $request->all();
-        $id = $data['id'];
-        $book = Book::find($id);
-        $book->annotations = $data['annotations'];
-        $book->save();
-        
+        $userId = $data['userId'];
+        $bookId = $data['bookId'];
+
+        Annotation::updateOrCreate(['userId' => $userId, 'bookId' => $bookId], [
+            'username' => $data['username'], 'annotations' => $data['annotations']
+        ]);
+
         return response()->json(['message' => 'saved!'], 200);
     }
 }

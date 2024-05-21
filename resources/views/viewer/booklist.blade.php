@@ -6,7 +6,7 @@
 
 @section('content')
     <h1 class="text-center"> <strong>All Books in Store</strong> </h1>
-    <table class="table table-dark text-center mt-5">
+    <table class="table table-bordered text-center table-hover mt-5">
         <thead>
             <tr>
                 <th>Title</th>

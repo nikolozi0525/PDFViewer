@@ -45,6 +45,7 @@ class BookController extends Controller
         //
         $this->validate($request,[
             'name' => 'required|unique:books',
+            'author' => 'required',
             'description' => 'string',
             'file' => 'required',
         ]);
@@ -58,7 +59,6 @@ class BookController extends Controller
             $bookFile->storeAs($destinationPath, $fileName, 'public');
             $input['filepath'] = $destinationPath . $fileName;
             $input['type'] = $bookFile->getClientMimeType();
-            $input['bookId'] = Str::random(40);
         }
 
   
@@ -99,7 +99,6 @@ class BookController extends Controller
             $bookFile->move($destinationPath, $fileName);
             $input['filepath'] = $destinationPath . $fileName;
             $input['type'] = $bookFile->type;
-            $input['bookId'] = Str::random(40);
         }
   
         $book->update($input);

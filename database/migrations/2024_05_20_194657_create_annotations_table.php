@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('books', function (Blueprint $table) {
+        Schema::create('annotations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('author');
-            $table->text('description')->nullable();
-            $table->string('type')->comment('pdf, or epub?');
-            $table->string('extension', 100)->default('.pdf');
-            $table->string('filepath');
-            
+            $table->unsignedBigInteger('userId');
+            $table->string('username');
+            $table->unsignedBigInteger('bookId');
+            $table->json('annotations');
+
             $table->timestamps();
+
+            $table->foreign('bookId')->references('id')->on('books');
         });
+
     }
 
     /**
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('books');
+        Schema::dropIfExists('annotations');
     }
 };

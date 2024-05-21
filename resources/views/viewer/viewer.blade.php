@@ -5,34 +5,64 @@
     <title>Pdf custom viewer</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="alternate" media="print" href="alternativeUrlForPrint.ext" />
     <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
-        print {
+        @media print {
             .noprint {
                 display: none !important;
             }
         }
+
+        /* .btn-booklist{
+            position: relative;
+            left: ;
+        } */
+        .btn-group-vertical {
+            position: relative;
+            top: 40%;
+            left: 14px;
+            width: 40px;
+        }
+
+        .btn-custom:hover {
+            background-color: gainsboro;
+        }
+    </style>
+    <style type="text/css" media="print">
+        body {
+            visibility: hidden;
+            display: none
+        }
     </style>
 </head>
 
-<body style="margin: 0px">
-    <div id="adobe-dc-view" class="pdf-view"></div>
+<body>
     <div class="custom-container d-center ">
-        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-            <a href="/" type="button" class="btn btn-primary">BookList page</a>
-            <button type="button" class="btn btn-primary my-1" onclick="handleSearchWeb()">Google search...</button>
-            <button type="button" class="btn btn-primary" onclick="handleAskAI()">Ask AI</button>
-            <button type="button" class="btn btn-primary my-1" onclick="storeAnnotationData()">Save changes</button>
+        <div class="btn-group-vertical bg-white p-1" role="group" aria-label="Vertical button group">
+            <a href="/" type="button" class="btn btn-custom btn-lg btn-booklist" data-toogle="tooltip1"
+                title="Lists of Books"><i class="fas fa-book d-flex justify-content-center"></i></a>
+            <button type="button" class="btn btn-custom btn-lg my-1" onclick="handleSearchWeb()" data-toogle="tooltip2"
+                title="Search in the Web"><i class="fas fa-globe d-flex justify-content-center"></i></button>
+            <button type="button" class="btn btn-custom btn-lg" onclick="handleAskAI()" data-toogle="tooltip3"
+                title="Ask AI"><i class="fas fa-comment-dots d-flex justify-content-center"></i></button>
+            <button type="button" class="btn btn-custom btn-lg my-1" onclick="storeAnnotationData()"
+                data-toogle="tooltip4" title="Export"><i
+                    class="fas fa-file-export d-flex justify-content-center"></i></button>
         </div>
     </div>
+    <div id="adobe-dc-view" class="pdf-view"></div>
 
     <script>
         var userData = {!! json_encode($user) !!}
         var bookInfo = {!! json_encode($book) !!}
+        var annotationInfo = {!! json_encode($annotations) !!}
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
@@ -82,7 +112,7 @@
                     },
                     metaData: {
                         fileName: bookInfo.name,
-                        id: bookInfo.bookId,
+                        id: `${bookInfo.id}`,
                     },
                 },
                 viewerConfig
@@ -96,8 +126,8 @@
                             code: AdobeDC.View.Enum.ApiResponseCode.SUCCESS,
                             data: {
                                 userProfile: {
-                                    ...userData,
-                                    name: `${userData.firstName} ${userData.lastName}`,
+                                    id: `${userData.userId}`,
+                                    name: userData.username,
                                 },
                             },
                         });
@@ -109,8 +139,10 @@
             adobeDCView.registerCallback(
                 AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
                 function(event) {
+                    console.log("event", event.type)
                     if (event.type === "DOCUMENT_PRINT") {
-                        location.reload();
+                        $(window).off('beforeunload')
+                        location.reload()
                     }
                     if (event.type === "PREVIEW_SELECTION_END") {
                         previewFilePromise.then((adobeViewer) => {
@@ -125,22 +157,8 @@
                                         console.log("selectedText", selectedText)
                                     }
                                 });
-
                             });
                         }, {});
-                    }
-                    if (event.type === 'PDF_VIEWER_OPEN') {
-                        window.addEventListener('beforeunload', e => {
-                            e.preventDefault();
-                            storeAnnotationData();
-                            event.returnValue = true;
-                        })
-                        $(window).bind("beforeunload", function(e) {
-                            storeAnnotationData();
-                            setTimeout(() => {
-                                return true;
-                            }, 1000);
-                        }, false);
                     }
                     if (event.type === "PDF_VIEWER_READY") {
 
@@ -150,37 +168,34 @@
                                 .getAnnotationManager()
                                 .then(function(annotationManager) {
                                     /* API to add annotations */
-                                    const tempData = JSON.parse(localStorage
-                                        .getItem('data'))
-                                    if (tempData.length) {
-                                        annotationManager
-                                            .addAnnotations(
-                                                tempData
-                                            ).then(function() {
-                                                console.log(
-                                                    "Annotations added through API successfully"
-                                                );
+                                    annotationManager
+                                        .addAnnotations(
+                                            JSON.parse(annotationInfo)
+                                        )
+                                        .then(function() {
+                                            console.log(
+                                                "Annotations added through API successfully"
+                                            );
+                                        })
+                                        .catch(function(error) {
+                                            console.log(error);
+                                        });
 
-                                            })
-                                    }
-                                    const annotations = JSON.parse(bookInfo.annotations)
-
-                                    if (annotations.length && tempData.length == 0) {
-                                        annotationManager
-                                            .addAnnotations(
-                                                annotations
-                                            )
-                                            .then(function() {
-                                                console.log(
-                                                    "Annotations added through API successfully from db"
-                                                );
-                                            })
-                                            .catch(function(error) {
-                                                console.log(error);
-                                            });
-                                    }
+                                    /* API to get all annotations */
+                                    annotationManager
+                                        .getAnnotations()
+                                        .then(function(result) {
+                                            console.log("GET all annotations-----", result);
+                                        })
+                                        .catch(function(error) {
+                                            console.log(error);
+                                        });
                                 });
                         });
+
+                        setInterval(() => {
+                            storeAnnotationData()
+                        }, 10000);
                     }
                 }, {
                     enableFilePreviewEvents: true,
@@ -208,13 +223,18 @@
                     annotationManager
                         .getAnnotations()
                         .then(function(result) {
-                            localStorage.setItem("data", JSON.stringify(result));
+                            console.log("GET all annotations", result);
+                            const filterResult = result.filter(one => one.creator.id == userData
+                                .userId)
+                            localStorage.setItem("data", JSON.stringify(filterResult));
                             $.ajax({
                                 url: `${location.origin}/api/annotations`,
                                 type: "POST",
                                 data: {
-                                    id: bookInfo.id,
-                                    annotations: JSON.stringify(result),
+                                    bookId: bookInfo.id,
+                                    userId: userData.userId,
+                                    username: userData.username,
+                                    annotations: JSON.stringify(filterResult),
                                 },
                                 success: (res) => {
                                     console.log("Save");
@@ -227,6 +247,20 @@
                 });
             });
         };
+        $(window).bind("beforeunload", function(e) {
+            e.preventDefault();
+            storeAnnotationData();
+
+            setTimeout(() => {
+                return true;
+            }, 1000);
+        });
+        $(function() {
+            $('[data-toogle="tooltip1"]').tooltip();
+            $('[data-toogle="tooltip2"]').tooltip();
+            $('[data-toogle="tooltip3"]').tooltip();
+            $('[data-toogle="tooltip4"]').tooltip();
+        })
     </script>
 
 
