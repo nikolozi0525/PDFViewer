@@ -165,9 +165,7 @@
                                     /* API to add annotations */
                                     annotationManager
                                         .addAnnotations(
-                                            annotationInfo.map(one => JSON.parse(one
-                                                .annotations)).flat()
-                                            // JSON.parse(localStorage.getItem("data"))
+                                            JSON.parse(annotationInfo)
                                         )
                                         .then(function() {
                                             console.log(
